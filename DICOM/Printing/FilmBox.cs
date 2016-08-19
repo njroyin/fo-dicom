@@ -520,6 +520,19 @@ namespace Dicom.Printing
         public bool Initialize()
         {
             //initialization
+
+            this.Add(new DicomSequence(DicomTag.ReferencedFilmSessionSequence));
+
+            var item = new DicomDataset();
+            item.Add(DicomTag.ReferencedSOPClassUID, _filmSession.SOPClassUID);
+            item.Add(DicomTag.ReferencedSOPInstanceUID, _filmSession.SOPInstanceUID);
+
+            var seq = Get<DicomSequence>(DicomTag.ReferencedFilmSessionSequence);
+            seq.Items.Add(item);
+            //this.Add(seq);
+           
+
+          
             this.Add(new DicomSequence(DicomTag.ReferencedImageBoxSequence));
 
             if (!this.Contains(DicomTag.FilmOrientation))
@@ -554,10 +567,11 @@ namespace Dicom.Printing
             {
                 Trim = "NO";
             }
-            if (!this.Contains(DicomTag.RequestedResolutionID))
+           /* if (!this.Contains(DicomTag.RequestedResolutionID))
             {
                 RequestedResolutionID = "STANDARD";
             }
+            */
 
             try
             {

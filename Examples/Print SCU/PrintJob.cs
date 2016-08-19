@@ -23,7 +23,8 @@ namespace Print_SCU
 
         public FilmSession FilmSession { get; private set; }
 
-        private FilmBox _currentFilmBox;
+        private FilmBox _currentFilmBox; 
+
 
         public PrintJob(string jobLabel)
         {
@@ -35,6 +36,47 @@ namespace Print_SCU
                               };
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="format">打印格式
+        /// <list type="bullet">
+        /// <item>
+        ///   <term>STANDARD\\C,R</term>
+        ///   <description>C为列数,R为行数</description>
+        /// </item> 
+        /// </list>
+        /// </param>
+        /// <param name="orientation">打印方向
+        /// <list type="bullet">
+        /// <item>
+        ///   <term>PORTRAIT</term>
+        ///   <description>纵向打印</description>
+        /// </item>
+        /// <item>
+        ///   <term>LANDSCAPE</term>
+        ///   <description>横向打印</description>
+        /// </item>
+        /// </list>
+        /// </param>
+        /// <param name="filmSize">胶片大小
+        /// <list type="bullet">
+        /// <item><description>8INX10IN</description></item>
+        /// <item><description>8_5INX11IN</description></item>
+        /// <item><description>10INX12IN</description></item>
+        /// <item><description>10INX14IN</description></item>
+        /// <item><description>11INX14IN</description></item>
+        /// <item><description>11INX17IN</description></item>
+        /// <item><description>14INX14IN</description></item>
+        /// <item><description>14INX17IN</description></item>
+        /// <item><description>24CMX24CM</description></item>
+        /// <item><description>24CMX30CM</description></item>
+        /// <item><description>A4</description></item>
+        /// <item><description>A3</description></item>
+        /// </list>
+        /// </param>
+        /// <returns></returns>
         public FilmBox StartFilmBox(string format, string orientation, string filmSize)
         {
             var filmBox = new FilmBox(FilmSession, null, DicomTransferSyntax.ExplicitVRLittleEndian)
@@ -163,6 +205,13 @@ namespace Print_SCU
         public void Print()
         {
             var dicomClient = new DicomClient();
+          
+            byte pcid = 0;
+            DicomPresentationContext _dicomPresentationContext = (FilmSession.IsColor == true ? new DicomPresentationContext(pcid, DicomUID.BasicGrayscalePrintManagementMetaSOPClass) : new DicomPresentationContext(pcid, DicomUID.BasicColorPrintManagementMetaSOPClass));
+            _dicomPresentationContext.AddTransferSyntax(DicomTransferSyntax.ImplicitVRLittleEndian);
+            dicomClient.AdditionalPresentationContexts.Add(_dicomPresentationContext);
+          
+             
             dicomClient.AddRequest(
                 new DicomNCreateRequest(FilmSession.SOPClassUID, FilmSession.SOPInstanceUID)
                     {

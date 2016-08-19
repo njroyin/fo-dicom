@@ -289,13 +289,27 @@ namespace Dicom.Network
                                 MaxAsyncOpsInvoked = this.asyncInvoked,
                                 MaxAsyncOpsPerformed = this.asyncPerformed
                             };
+            /*
             foreach (var request in this.requests)
             {
                 assoc.PresentationContexts.AddFromRequest(request);
             }
+             * */
             foreach (var context in this.AdditionalPresentationContexts)
             {
                 assoc.PresentationContexts.Add(context.AbstractSyntax, context.GetTransferSyntaxes().ToArray());
+            }
+
+            foreach (var pc in assoc.PresentationContexts)
+            {
+                foreach (var request in this.requests)
+                {
+                    request.PresentationContext = new DicomPresentationContext(
+                        pc.ID,
+                        (request.PresentationContext==null?pc.AbstractSyntax:request.PresentationContext.AbstractSyntax),
+                        pc.AcceptedTransferSyntax,
+                        DicomPresentationContextResult.Proposed);
+                }
             }
 
             this.associateNotifier = new TaskCompletionSource<bool>();
